@@ -1,0 +1,56 @@
+name: Weekly Retrain + Promote
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'   # Every Sunday at 02:00 UTC
+  workflow_dispatch:        # Also triggerable manually from GitHub UI
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run training and log to MLflow
+        run: |
+          python -c "
+          import mlflow, os, json
+          from src.train import train_and_log
+
+          mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
+          result = train_and_log()
+          print(f'F1={result[\"f1_score\"]:.4f}  version={result[\"model_version\"]}')
+
+          with open('train_result.json', 'w') as f:
+              json.dump(result, f)
+          "
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MODEL_NAME: CreditDefaultModel
+
+      - name: Promote champion if F1 improved
+        run: |
+          python -c "
+          import mlflow, json, os
+          from promote import promote_if_better
+
+          mlflow.set_tracking_uri(os.environ['MLFLOW_TRACKING_URI'])
+          with open('train_result.json') as f:
+              result = json.load(f)
+          promoted = promote_if_better(result['model_version'], result['f1_score'])
+          print('Promoted:', promoted)
+          "
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MODEL_NAME: CreditDefaultModel
