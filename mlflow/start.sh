@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # Fly Postgres gives postgres:// but MLflow requires postgresql://
-DB_URI="${DATABASE_URL/postgres:\/\//postgresql://}"
+DB_URI=$(echo "$DATABASE_URL" | sed 's|^postgres://|postgresql://|')
 
 exec mlflow server \
     --host 0.0.0.0 \
