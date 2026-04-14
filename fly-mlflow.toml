@@ -11,10 +11,10 @@ primary_region = "sjc"
   min_machines_running = 1
 
 [[vm]]
-  memory = "512mb"
+  memory = "1024mb"
   cpu_kind = "shared"
   cpus = 1
-  swap_size_mb = 256
+  swap_size_mb = 512
 
 [[mounts]]
   source = "mlflow_artifacts"

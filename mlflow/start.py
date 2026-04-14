@@ -15,6 +15,7 @@ cmd = [
     "--backend-store-uri", db_url,
     "--default-artifact-root", "/mlflow/artifacts",
     "--serve-artifacts",
+    "--workers", "1",   # lean: 1 worker keeps RAM under 1GB on Fly free tier
 ]
 
 sys.exit(subprocess.call(cmd))
