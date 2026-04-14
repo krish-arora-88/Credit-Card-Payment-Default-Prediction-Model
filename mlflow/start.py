@@ -13,9 +13,14 @@ cmd = [
     "--host", "0.0.0.0",
     "--port", "5000",
     "--backend-store-uri", db_url,
-    "--default-artifact-root", "/mlflow/artifacts",
+    # --serve-artifacts proxies uploads through the REST API.
+    # --artifacts-destination is where the SERVER stores files locally.
+    # --default-artifact-root mlflow-artifacts:/ tells clients to go via proxy,
+    # not write directly to the server's filesystem.
     "--serve-artifacts",
-    "--workers", "1",   # lean: 1 worker keeps RAM under 1GB on Fly free tier
+    "--artifacts-destination", "/mlflow/artifacts",
+    "--default-artifact-root", "mlflow-artifacts:/",
+    "--workers", "1",
 ]
 
 sys.exit(subprocess.call(cmd))
