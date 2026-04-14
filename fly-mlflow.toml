@@ -1,0 +1,21 @@
+app = "credit-mlflow-server"
+primary_region = "sjc"
+
+[build]
+  dockerfile = "mlflow/Dockerfile"
+
+[http_service]
+  internal_port = 5000
+  force_https = true
+  auto_stop_machines = false
+  min_machines_running = 1
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+  swap_size_mb = 256
+
+[[mounts]]
+  source = "mlflow_artifacts"
+  destination = "/mlflow/artifacts"
